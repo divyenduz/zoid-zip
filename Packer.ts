@@ -1,36 +1,51 @@
+import Uint1Array from "uint1array";
+import { BUFFER_SIZE } from ".";
+
 export class Packer {
-  bits: number[] = [];
-  constructor() {}
+  buf: ArrayBuffer;
+  bytes: Uint8Array;
+  bits: Uint1Array;
+  position: number = 0;
+  constructor() {
+    this.buf = new ArrayBuffer(BUFFER_SIZE);
+    this.bytes = new Uint8Array(this.buf);
+    this.bits = new Uint1Array(this.buf);
+  }
 
   writeInt32(value: number) {
-    for (let i = 0; i < 32; i++) {
-      this.bits.push((value >> i) % 2);
-    }
+    const bits = value
+      .toString(2) // Convert number to equivalent bit string!
+      .padStart(32, "0") // pad it with necessary number of zeroes
+      .split("") // split it to get each bit
+      .map((bit) => parseInt(bit)) // turn it into a number, slow-ish?
+      .reverse() // reverse it for order!
+      .forEach((bit) => {
+        this.bits[this.position] = bit;
+        this.position++;
+      });
   }
 
-  bitsToBytes(bits: number[]) {
+  writeInt8(value: number) {
+    const bits = value
+      .toString(2) // Convert number to equivalent bit string!
+      .padStart(8, "0") // pad it with necessary number of zeroes
+      .split("") // split it to get each bit
+      .map((bit) => parseInt(bit)) // turn it into a number, slow-ish?
+      .reverse() // reverse it for order!
+      .forEach((bit) => {
+        this.bits[this.position] = bit;
+        this.position++;
+      });
+  }
+
+  addBits(bits: number[]) {
     bits.forEach((bit) => {
-      this.bits.push(bit);
+      this.bits[this.position] = bit;
+      this.position++;
     });
-  }
-
-  readBit(buffer: Buffer, i: number, bit: number) {
-    return (buffer[i] >> bit) % 2;
-  }
-
-  setBit(buffer: Buffer, i: number, bit: number, value: number) {
-    if (value == 0) {
-      buffer[i] &= ~(1 << bit);
-    } else {
-      buffer[i] |= 1 << bit;
-    }
   }
 
   pack() {
-    const buffer = Buffer.alloc(Math.ceil(this.bits.length / 8));
-    this.bits.forEach((bit, index) => {
-      this.setBit(buffer, Math.floor(index / 8), index % 8, bit);
-    });
-    return buffer;
+    return this.bytes;
   }
 }

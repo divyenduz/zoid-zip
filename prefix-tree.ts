@@ -1,5 +1,6 @@
 import { Leaf } from "./Leaf";
 import { Node } from "./Node";
+import { NodeType, TableRow } from "./types";
 
 export function buildTree(str: string) {
   const frequencyMap: Record<number, number> = {};
@@ -25,4 +26,19 @@ export function buildTree(str: string) {
     nodes.sort((a, b) => a.count - b.count);
   }
   return nodes[0];
+}
+
+export function buildTable(
+  node: NodeType,
+  path: number[] = []
+): Array<TableRow> {
+  if (node instanceof Node) {
+    // is node
+    const left = buildTable(node.left, path.concat([0]));
+    const right = buildTable(node.right, path.concat([1]));
+    return left.concat(right);
+  } else {
+    // is leaf
+    return [new TableRow(node.byte, path)];
+  }
 }

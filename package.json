@@ -9,6 +9,7 @@
   "author": "Divyendu Singh <mail@divyendusingh.com>",
   "license": "MIT",
   "dependencies": {
+    "arg": "^5.0.2",
     "uint1array": "1.2.0",
     "uint8array-extras": "0.5.1"
   },

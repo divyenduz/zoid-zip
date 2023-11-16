@@ -1,40 +1,44 @@
 import Uint1Array from "uint1array";
-
-type Uint1Array = Uint8Array;
+import { BUFFER_SIZE } from ".";
 
 export class Unpacker {
-  constructor(public buffer: Buffer) {}
+  buf: ArrayBuffer;
+  bytes: Uint8Array;
+  bits: Uint1Array;
+  position: number = 0;
+  constructor(public compressed: Uint8Array) {
+    this.buf = new ArrayBuffer(BUFFER_SIZE);
+    this.bytes = new Uint8Array(this.buf);
+    this.bits = new Uint1Array(this.buf);
+    this.bytes.set(compressed);
+  }
 
   readInt32() {
-    return this.buffer.readInt32LE(0);
+    const bits = this.readBits(32);
+    const binary = bits.reverse().join("");
+    const length = parseInt(binary, 2);
+    return length;
+  }
+
+  readInt8() {
+    const bits = this.readBits(8);
+    const binary = bits.reverse().join("");
+    const length = parseInt(binary, 2);
+    return length;
+  }
+
+  readBits(n: number) {
+    const peekBits = this.bits.subarray(this.position, this.position + n);
+    this.dropBits(n);
+    return Array.from(peekBits);
   }
 
   dropBits(n: number) {
-    const startBytes = Math.floor(n / 8);
-    const startBits = n % 8;
-    const newBuffer = this.buffer.slice(startBytes);
-    if (startBits > 0 && newBuffer.length > 0) {
-      newBuffer[0] = newBuffer[0] & ((1 << (8 - startBits)) - 1);
-    }
-    this.buffer = newBuffer;
+    this.position += n;
   }
 
   peek(n: number) {
-    let peekBits = [];
-    for (let i = 0; i < n; i++) {
-      peekBits.push(this.readBit(0, i) << i);
-    }
-    console.log({ peekBits });
+    const peekBits = this.bits.subarray(this.position, this.position + n);
     return peekBits;
-  }
-
-  readBit(i: number, bit: number) {
-    console.log(this.buffer);
-    const bits = new Uint1Array(this.buffer);
-    console.log({ bits: `${bits}` });
-    console.log({ newBit: bits[i] });
-    const readBit = (this.buffer[i] >> bit) % 2;
-    console.log({ readBit });
-    return readBit;
   }
 }
