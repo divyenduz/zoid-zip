@@ -1,0 +1,19 @@
+{
+  "name": "zoid-zip",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Divyendu Singh <mail@divyendusingh.com>",
+  "license": "MIT",
+  "dependencies": {
+    "uint1array": "1.2.0",
+    "uint8array-extras": "0.5.1"
+  },
+  "devDependencies": {
+    "@types/node": "20.9.0",
+    "vite-node": "0.34.6"
+  }
+}
