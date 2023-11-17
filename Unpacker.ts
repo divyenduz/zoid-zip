@@ -1,5 +1,4 @@
 import Uint1Array from "uint1array";
-import { BUFFER_SIZE } from ".";
 
 export class Unpacker {
   buf: ArrayBuffer;
@@ -7,7 +6,7 @@ export class Unpacker {
   bits: Uint1Array;
   position: number = 0;
   constructor(public compressed: Uint8Array) {
-    this.buf = new ArrayBuffer(BUFFER_SIZE);
+    this.buf = new ArrayBuffer(compressed.length);
     this.bytes = new Uint8Array(this.buf);
     this.bits = new Uint1Array(this.buf);
     this.bytes.set(compressed);

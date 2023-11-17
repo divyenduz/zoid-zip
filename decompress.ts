@@ -5,7 +5,6 @@ export function decompress(compressed: Uint8Array) {
   const unpacker = new Unpacker(compressed);
   const dataLength = unpacker.readInt32();
   const table = unpackTable(unpacker);
-
   const bytes: number[] = [];
   for (let i = 0; i < dataLength; i++) {
     const byte = lookUpBits(table, unpacker);

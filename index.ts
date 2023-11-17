@@ -4,19 +4,24 @@ import { decompress } from "./decompress";
 import { stdin, stdout } from "process";
 import arg from "arg";
 import fs from "fs";
+import { buildTree } from "./prefix-tree";
+import { generateDotTree } from "./helpers/render";
 
-export const BUFFER_SIZE = 4 + 2 + 2000;
 const args = arg({});
 
-if (args._.length === 0) {
+if (args._[0] === "prefix-tree") {
   const input = fs.readFileSync("./examples/a-z/input.txt", "utf-8");
-  const compressed = compress(input);
+  const tree = buildTree(input);
+  const dotTree = generateDotTree(tree);
+  console.log(dotTree);
+  process.exit(0);
+}
+
+if (args._.length === 0) {
+  const input = fs.readFileSync("./examples/a-z/input.txt", "ascii");
+  const { compressed, compressedSize } = compress(input);
   const decompressed = decompress(compressed);
-  const buf = new ArrayBuffer(BUFFER_SIZE);
-  const bytes = new Uint8Array(buf);
-  bytes.set(compressed);
   const inputSize = Buffer.byteLength(input);
-  const compressedSize = bytes.length;
 
   if (input !== decompressed) {
     console.error(`It didn't decompress properly`);
@@ -40,10 +45,12 @@ if (args._.length === 0) {
   stdin.on("end", () => {
     const data = Buffer.concat(chunks);
     if (args._[0] === "compress") {
-      stdout.write(compress(data.toString()));
+      const { compressed } = compress(data.toString());
+      stdout.write(compressed);
     }
     if (args._[0] === "decompress") {
-      stdout.write(decompress(data));
+      const decompressed = decompress(data);
+      stdout.write(decompressed);
     }
   });
 }

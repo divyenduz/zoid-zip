@@ -1,13 +1,11 @@
 import Uint1Array from "uint1array";
-import { BUFFER_SIZE } from ".";
-
 export class Packer {
   buf: ArrayBuffer;
   bytes: Uint8Array;
   bits: Uint1Array;
   position: number = 0;
-  constructor() {
-    this.buf = new ArrayBuffer(BUFFER_SIZE);
+  constructor(size: number) {
+    this.buf = new ArrayBuffer(size);
     this.bytes = new Uint8Array(this.buf);
     this.bits = new Uint1Array(this.buf);
   }
