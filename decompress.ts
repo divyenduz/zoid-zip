@@ -5,12 +5,12 @@ export function decompress(compressed: Uint8Array) {
   const unpacker = new Unpacker(compressed);
   const dataLength = unpacker.readInt32();
   const table = unpackTable(unpacker);
-  const bytes: number[] = [];
+  const bytes: string[] = [];
   for (let i = 0; i < dataLength; i++) {
     const byte = lookUpBits(table, unpacker);
-    bytes.push(byte);
+    bytes.push(String.fromCharCode(byte!));
   }
-  return bytes.map((byte) => String.fromCharCode(byte!)).join("");
+  return bytes.join("");
 }
 
 function unpackTable(unpacker: Unpacker) {
