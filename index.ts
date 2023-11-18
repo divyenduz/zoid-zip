@@ -4,16 +4,14 @@ import { decompress } from "./decompress";
 import { stdin, stdout } from "process";
 import arg from "arg";
 import fs from "fs";
-import { buildTree } from "./prefix-tree";
-import { generateDotTree } from "./helpers/render";
+import { prefixTreeCommand } from "./commands/prefix-tree";
 
 const args = arg({});
 
 if (args._[0] === "prefix-tree") {
-  const input = fs.readFileSync("./examples/a-z/input.txt", "utf-8");
-  const tree = buildTree(input);
-  const dotTree = generateDotTree(tree);
-  console.log(dotTree);
+  const example = "a-z";
+  const input = fs.readFileSync(`./examples/${example}/input.txt`, "utf-8");
+  await prefixTreeCommand(input, example);
   process.exit(0);
 }
 
