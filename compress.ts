@@ -50,8 +50,7 @@ function findSize(input: string, table: TableRow[]) {
   return (
     4 + // 32 bit integer storing length of input
     tableSize(table) + // Size of the packed hoffman-coding table
-    encodedInputSize(inputFrequencyTable, table) + // Size of the encoded input
-    1000
+    encodedInputSize(inputFrequencyTable, table) // Size of the encoded input
   );
 }
 

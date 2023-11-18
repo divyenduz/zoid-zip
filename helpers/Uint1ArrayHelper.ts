@@ -10,7 +10,7 @@ const chunks = (arr, size) =>
       .toString(16)
       .padStart(2, "0")
       .toUpperCase();
-    return chunkStr + " " + hex;
+    return chunkStr.padStart(8, "0") + " " + hex;
   });
 
 Uint1Array.prototype.toString = function () {
