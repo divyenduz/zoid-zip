@@ -1,7 +1,7 @@
 import { Packer } from "./binary-utils/Packer";
 import { buildTree, buildTable } from "./tree-utils/prefix-tree";
 import { NodeType, TableRow } from "./types";
-import { preorderTraversal } from "./pack-tree";
+import { preorderTraversal } from "./tree-utils/pack-tree";
 
 export function compress(input: string) {
   const tree = buildTree(input);

@@ -1,4 +1,4 @@
-import { NodeType, Node, Leaf } from "./types";
+import { NodeType, Node, Leaf } from "../types";
 
 const INTERNAL_NODE_SYMBOL = 31; // ASCII Unit Separator
 

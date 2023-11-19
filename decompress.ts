@@ -1,4 +1,4 @@
-import { traversalToTree } from "./pack-tree";
+import { traversalToTree } from "./tree-utils/pack-tree";
 import { extractBytes } from "./tree-utils/trie";
 import { Unpacker } from "./binary-utils/Unpacker";
 
