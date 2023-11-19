@@ -1,16 +1,14 @@
 import EventEmitter from "node:events";
-import { Leaf } from "../Leaf";
-import { Node } from "../Node";
-import { NodeType } from "../types";
+import { NodeType, Node, Leaf } from "../types";
 
 export function generateDotTree(
   tree: NodeType,
-  traversalEventEmitter: EventEmitter
+  traversalEventEmitter?: EventEmitter
 ) {
   const traversal: string[] = [];
 
   function dfs(tree: NodeType) {
-    if (traversal.length > 0) {
+    if (traversal.length > 0 && traversalEventEmitter) {
       traversalEventEmitter.emit("node", {
         dotOutput: wrapInDotDigraph(
           [`"(index=${traversal.length})"`].concat(traversal)
@@ -35,10 +33,12 @@ export function generateDotTree(
   dfs(tree);
 
   const dotOutput = wrapInDotDigraph(traversal);
-  traversalEventEmitter.emit("end", {
-    dotOutput,
-    length: traversal.length,
-  });
+  if (traversalEventEmitter) {
+    traversalEventEmitter.emit("end", {
+      dotOutput,
+      length: traversal.length,
+    });
+  }
   return dotOutput;
 }
 

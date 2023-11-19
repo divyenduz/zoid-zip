@@ -1,18 +1,18 @@
-import { Packer } from "./Packer";
-import { buildTree, buildTable } from "./prefix-tree";
-import { TableRow } from "./types";
-import "./helpers/Uint1ArrayHelper";
+import { Packer } from "./binary-utils/Packer";
+import { buildTree, buildTable } from "./tree-utils/prefix-tree";
+import { NodeType, TableRow } from "./types";
+import { preorderTraversal } from "./pack-tree";
 
 export function compress(input: string) {
   const tree = buildTree(input);
   const table = buildTable(tree);
-
-  const compressedSize = findSize(input, table);
+  const compressedSize = findSize(input, table, tree);
 
   const packer = new Packer(compressedSize);
   packer.writeInt32(input.length);
 
-  packTable(table, packer);
+  packTree(tree, packer);
+  packMaxAndMinBitsInTable(table, packer);
 
   input.split("").forEach((byte) => {
     const bits = lookUpByte(table, byte.charCodeAt(0));
@@ -23,17 +23,31 @@ export function compress(input: string) {
   return { compressed: packedBytes, compressedSize };
 }
 
-function packTable(table: TableRow[], packer: Packer) {
-  packer.writeInt8(table.length);
-  table.forEach((row) => {
-    if (row.byte > 255) {
-      throw new Error(`Byte ${row.byte} is greater than 255`);
+function packTree(tree: NodeType, packer: Packer) {
+  const traversal = preorderTraversal(tree);
+  packer.writeInt8(traversal.length);
+  traversal.forEach((byte) => {
+    if (byte > 255) {
+      throw new Error(`Byte ${byte} is greater than 255`);
     }
-
-    packer.writeInt8(row.byte);
-    packer.writeInt8(row.bits.length);
-    packer.addBits(row.bits);
+    packer.writeInt8(byte);
   });
+}
+
+function packMaxAndMinBitsInTable(table: TableRow[], packer: Packer) {
+  let maxBitsLength = Number.NEGATIVE_INFINITY;
+  let minBitsLength = Number.POSITIVE_INFINITY;
+
+  table.forEach((row) => {
+    if (row.bits.length > maxBitsLength) {
+      maxBitsLength = row.bits.length;
+    }
+    if (row.bits.length < minBitsLength) {
+      minBitsLength = row.bits.length;
+    }
+  });
+  packer.writeInt8(maxBitsLength);
+  packer.writeInt8(minBitsLength);
 }
 
 function lookUpByte(table: TableRow[], byte: number) {
@@ -44,29 +58,25 @@ function lookUpByte(table: TableRow[], byte: number) {
   return tableRow.bits;
 }
 
-function findSize(input: string, table: TableRow[]) {
+export function findSize(input: string, table: TableRow[], tree: NodeType) {
   const inputFrequencyTable = frequencyTable(input);
 
   return (
     4 + // 32 bit integer storing length of input
-    tableSize(table) + // Size of the packed hoffman-coding table
-    encodedInputSize(inputFrequencyTable, table) + // Size of the encoded input
-    1000
+    // tableSize(table) + // Size of the packed hoffman-coding table
+    treeSize(tree) + // Size of the packed prefix tree
+    1 + // 8 bit integer storing max length of bits in the table, 1 byte
+    1 + // 8 bit integer storing min length of bits in the table, 1 byte
+    encodedInputSize(inputFrequencyTable, table) // Size of the encoded input
   );
 }
 
-function tableSize(table: TableRow[]) {
+function treeSize(tree: NodeType) {
+  const traversal = preorderTraversal(tree);
   return (
-    1 + // 8 bit integer storing number of rows in table, 1 byte
-    1 * table.length + // 8 bit integer for each byte in the table, 1 byte
-    1 * table.length + // 8 bit integer for each length of bits in the table, 1 byte
-    tableDataSize(table) // Size of the packed bits in the table, in bytes
+    1 + // +1 byte for storing the length of the traversal;
+    traversal.length
   );
-}
-
-function tableDataSize(table: TableRow[]) {
-  const bits = table.reduce((acc, row) => acc + row.bits.length, 0); // 1 bit for each bit in the table
-  return Math.ceil(bits / 8);
 }
 
 /**
