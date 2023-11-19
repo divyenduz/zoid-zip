@@ -1,19 +1,16 @@
+import { buildTree } from "./prefix-tree";
+import { extractBytes } from "./trie";
 import { TableRow } from "./types";
 import { Unpacker } from "./Unpacker";
 
-export function decompress(compressed: Uint8Array) {
+export function decompress(compressed: Uint8Array, input: string) {
   const unpacker = new Unpacker(compressed);
-  const dataLength = unpacker.readInt32();
-  const table = unpackTable(unpacker);
-  const bytes: string[] = [];
-  for (let i = 0; i < dataLength; i++) {
-    const byte = lookUpBits(table, unpacker);
-    bytes.push(String.fromCharCode(byte!));
-  }
-  return bytes.join("");
+  const tree = buildTree(input);
+  const bytes = extractBytes(tree, compressed);
+  return bytes.map((byte) => String.fromCharCode(byte)).join("");
 }
 
-function unpackTable(unpacker: Unpacker) {
+export function unpackTable(unpacker: Unpacker) {
   const tableLength = unpacker.readInt8();
   const table: TableRow[] = [];
   for (let i = 0; i < tableLength; i++) {
@@ -22,23 +19,7 @@ function unpackTable(unpacker: Unpacker) {
     const bits = unpacker.readBits(bitsLength) as unknown as number[];
     table.push(new TableRow(byte, bits));
   }
-  return table;
-}
-
-function lookUpBits(table: TableRow[], unpacker: Unpacker) {
-  const matchedRow = table.find((row) => {
-    if (
-      JSON.stringify(row.bits) ===
-      JSON.stringify(unpacker.peek(row.bits.length))
-    ) {
-      unpacker.dropBits(row.bits.length);
-      return true;
-    } else {
-      return false;
-    }
-  });
-  if (!matchedRow) {
-    throw new Error(`No matching row found`);
-  }
-  return matchedRow.byte;
+  const maxBitsLength = unpacker.readInt8();
+  const minBitsLength = unpacker.readInt8();
+  return { table, maxBitsLength, minBitsLength };
 }

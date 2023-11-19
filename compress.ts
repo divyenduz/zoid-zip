@@ -25,6 +25,10 @@ export function compress(input: string) {
 
 function packTable(table: TableRow[], packer: Packer) {
   packer.writeInt8(table.length);
+
+  let maxBitsLength = Number.NEGATIVE_INFINITY;
+  let minBitsLength = Number.POSITIVE_INFINITY;
+
   table.forEach((row) => {
     if (row.byte > 255) {
       throw new Error(`Byte ${row.byte} is greater than 255`);
@@ -33,7 +37,17 @@ function packTable(table: TableRow[], packer: Packer) {
     packer.writeInt8(row.byte);
     packer.writeInt8(row.bits.length);
     packer.addBits(row.bits);
+
+    if (row.bits.length > maxBitsLength) {
+      maxBitsLength = row.bits.length;
+    }
+    if (row.bits.length < minBitsLength) {
+      minBitsLength = row.bits.length;
+    }
   });
+
+  packer.writeInt8(maxBitsLength);
+  packer.writeInt8(minBitsLength);
 }
 
 function lookUpByte(table: TableRow[], byte: number) {
@@ -59,6 +73,8 @@ function tableSize(table: TableRow[]) {
     1 + // 8 bit integer storing number of rows in table, 1 byte
     1 * table.length + // 8 bit integer for each byte in the table, 1 byte
     1 * table.length + // 8 bit integer for each length of bits in the table, 1 byte
+    1 + // 8 bit integer storing max length of bits in the table, 1 byte
+    1 + // 8 bit integer storing min length of bits in the table, 1 byte
     tableDataSize(table) // Size of the packed bits in the table, in bytes
   );
 }
