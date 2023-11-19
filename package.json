@@ -1,6 +1,7 @@
 {
   "name": "zoid-zip",
   "version": "1.0.0",
+  "type": "module",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -16,6 +17,7 @@
   },
   "devDependencies": {
     "@types/node": "20.9.0",
+    "typescript": "5.2.2",
     "vite-node": "0.34.6"
   }
 }

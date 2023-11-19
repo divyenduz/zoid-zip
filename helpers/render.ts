@@ -1,7 +1,5 @@
 import EventEmitter from "node:events";
-import { Leaf } from "../Leaf";
-import { Node } from "../Node";
-import { NodeType } from "../types";
+import { NodeType, Node, Leaf } from "../types";
 
 export function generateDotTree(
   tree: NodeType,

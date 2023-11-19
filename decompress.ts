@@ -1,25 +1,38 @@
-import { buildTree } from "./prefix-tree";
-import { extractBytes } from "./trie";
-import { TableRow } from "./types";
-import { Unpacker } from "./Unpacker";
+import { traversalToTree } from "./pack-tree";
+import { extractBytes } from "./tree-utils/trie";
+import { Unpacker } from "./binary-utils/Unpacker";
 
-export function decompress(compressed: Uint8Array, input: string) {
+export function decompress(compressed: Uint8Array) {
   const unpacker = new Unpacker(compressed);
-  const tree = buildTree(input);
-  const bytes = extractBytes(tree, compressed);
+  const dataLength = unpacker.readInt32(); // dataLength
+  const tree = unpackTree(unpacker);
+  const { maxBitsLength, minBitsLength } = unpackMaxAndMinBitsInTable(unpacker);
+
+  const bytes = extractBytes(
+    unpacker,
+    tree,
+    dataLength,
+    maxBitsLength,
+    minBitsLength
+  );
   return bytes.map((byte) => String.fromCharCode(byte)).join("");
 }
 
-export function unpackTable(unpacker: Unpacker) {
-  const tableLength = unpacker.readInt8();
-  const table: TableRow[] = [];
-  for (let i = 0; i < tableLength; i++) {
+export function unpackTree(unpacker: Unpacker) {
+  const treeLength = unpacker.readInt8();
+  const traversal: number[] = [];
+  for (let i = 0; i < treeLength; i++) {
     const byte = unpacker.readInt8();
-    const bitsLength = unpacker.readInt8();
-    const bits = unpacker.readBits(bitsLength) as unknown as number[];
-    table.push(new TableRow(byte, bits));
+    traversal.push(byte);
   }
+  const tree = traversalToTree(traversal);
+  return tree;
+}
+function unpackMaxAndMinBitsInTable(unpacker: Unpacker): {
+  maxBitsLength: any;
+  minBitsLength: any;
+} {
   const maxBitsLength = unpacker.readInt8();
   const minBitsLength = unpacker.readInt8();
-  return { table, maxBitsLength, minBitsLength };
+  return { maxBitsLength, minBitsLength };
 }

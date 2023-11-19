@@ -1,6 +1,4 @@
-import { Leaf } from "./Leaf";
-import { Node } from "./Node";
-import { NodeType, TableRow } from "./types";
+import { NodeType, Node, Leaf, TableRow } from "../types";
 
 export function buildTree(str: string) {
   const frequencyMap: Record<number, number> = {};

@@ -1,7 +1,7 @@
 import EventEmitter from "events";
 import { toFile } from "ts-graphviz/adapter";
 import { generateDotTree } from "../helpers/render";
-import { buildTree } from "../prefix-tree";
+import { buildTree } from "../tree-utils/prefix-tree";
 
 export async function prefixTreeCommand(input: string, example: string) {
   const tree = buildTree(input);

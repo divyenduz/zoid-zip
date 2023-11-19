@@ -1,16 +1,14 @@
-import { Leaf } from "./Leaf";
-import { Node } from "./Node";
-import { Unpacker } from "./Unpacker";
-import { unpackTable } from "./decompress";
-import { NodeType } from "./types";
+import { Unpacker } from "../binary-utils/Unpacker";
+import { NodeType, Node, Leaf } from "../types";
 
-export function extractBytes(tree, compressed) {
-  const unpacker = new Unpacker(compressed);
-  const dataLength = unpacker.readInt32(); // dataLength
-  const { table: _, maxBitsLength, minBitsLength } = unpackTable(unpacker); // Table
-
+export function extractBytes(
+  unpacker,
+  tree,
+  dataLength,
+  maxBitsLength,
+  minBitsLength
+) {
   let outputBytes: number[] = [];
-
   for (let i = 0; i < dataLength; i++) {
     const byte = findNextByte(tree, unpacker, maxBitsLength, minBitsLength);
     outputBytes.push(byte);

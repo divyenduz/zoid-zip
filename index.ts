@@ -9,7 +9,7 @@ import { prefixTreeCommand } from "./commands/prefix-tree";
 const args = arg({});
 
 if (args._[0] === "prefix-tree") {
-  const example = "a-z";
+  const example = "basic";
   const input = fs.readFileSync(`./examples/${example}/input.txt`, "ascii");
   await prefixTreeCommand(input, example);
   process.exit(0);
@@ -19,7 +19,7 @@ if (args._.length === 0) {
   const example = "a-z";
   const input = fs.readFileSync(`./examples/${example}/input.txt`, "ascii");
   const { compressed, compressedSize } = compress(input);
-  const decompressed = decompress(compressed, input);
+  const decompressed = decompress(compressed);
   const inputSize = Buffer.byteLength(input);
 
   if (input !== decompressed) {
