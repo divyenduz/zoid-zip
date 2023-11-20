@@ -5,6 +5,7 @@ import { stdin, stdout } from "process";
 import arg from "arg";
 import fs from "fs";
 import { prefixTreeCommand } from "./commands/prefix-tree";
+import "./helpers/Uint1ArrayHelper";
 
 const args = arg({});
 
