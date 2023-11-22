@@ -42,7 +42,7 @@ Or run
 
 # Build Your Own Data Compressor
 
-I wrote this during my time at (the Recurse Center)[https://recurse.com]! for learning about data compressors. Let's dive in.
+I wrote this during my time at [the Recurse Center](https://recurse.com)! for learning about data compressors. Let's dive in.
 
 # Theory
 
@@ -53,13 +53,13 @@ Let's start with why compression? Data compression is all around us:
 - Image, audio, video files use compression to store more data using less storage space
 - Internet is powered by data compression, the less bytes you transfer over the network, the faster your user can see content
 
-Note: compression is a tradeoff between storage/network transport vs compute, we can compress data into a smaller amount of bytes, making it easier to travsfer over the network, but the client needs to use more "compute" once it has downloaded a comptessed package.
+Note: compression is a tradeoff between storage/network transport vs compute, we can compress data into a smaller amount of bytes, making it easier to transfer over the network, but the client needs to use more "compute" once it has downloaded a compressed package.
 
 ## Huffman Coding
 
-Let's say you want to compress the string: "ababcccc". The first thing we need to do is to find a way to encode the individual characters into a representation that takes less space than the original (this is called "variable length coding"). One of the most scalable ways of doing that is to use [huffman-coding](https://en.wikipedia.org/wiki/Huffman_coding).
+Let's say you want to compress the string: "ababcccc". The first thing we need to do is to find a way to encode the individual characters into a representation that takes less space than the original (this is called "variable length coding"). One of the most scalable ways of doing that is to use [Huffman coding](https://en.wikipedia.org/wiki/Huffman_coding).
 
-Huffman-coding works by making a frequency table of the characters (Leaf nodes) in the input, so in our case that would look like
+Huffman coding works by making a frequency table of the characters (leaf nodes) in the input, so in our case that would look like
 
 | Char | Frequency |
 | ---- | --------- |
@@ -67,7 +67,7 @@ Huffman-coding works by making a frequency table of the characters (Leaf nodes) 
 | b    | 2         |
 | c    | 4         |
 
-Then it joins the last two nodes with most frequency by having a common internal node as the parent. Repeating this process till there is no Leaf node remaning.
+Then it joins the last two nodes with most frequency by having a common internal node as the parent, repeating this process until there is no leaf node remaining.
 
 For our input, "ababcccc", it will look like the following:
 
@@ -77,7 +77,7 @@ and here is a step by step animation of how the algorithm constructs this tree:
 
 ![](./examples/basic/animation/animation.gif)
 
-Once we have the huffman-coding, we can encode input characters into bits, by tracing the path up to the leaf node. In our case, it looks like the following
+Once we have the Huffman coding, we can encode input characters into bits, by tracing the path up to the leaf node. In our case, it looks like the following
 
 | Char | Encoding |
 | ---- | -------- |
@@ -85,9 +85,9 @@ Once we have the huffman-coding, we can encode input characters into bits, by tr
 | b    | 11       |
 | c    | 0        |
 
-We can already see a pattern emerging, the most frequent characters (c in our case), is closer to the root and is represented by less bits. The less frequent characters like a, b are further away form the root.
+We can already see a pattern emerging, the most frequent characters (c in our case), is closer to the root and is represented by less bits. The less frequent characters like a, b are further away from the root.
 
-Another property of Huffman coding is that the prefixes are not shared by characters! Which means any travelsal of the tree to a leaf Node is unique and no other traversal will be a substring of another traversal. This would be useful in decoding as while decoding we won't know "how many" bits to read as the encoding length is variable.
+Another property of Huffman coding is that the prefixes are not shared by characters! Which means any traversal of the tree to a leaf node is unique and no other traversal will be a substring of another traversal. This would be useful in decoding, because while decoding we won't know "how many" bits to read as the encoding length is variable.
 
 So, to encode the string
 
@@ -98,23 +98,23 @@ So, to encode the string
 | char | a   | b   | a   | b   | c   | c   | c   | c   | 8 bytes                             |
 | bits | 10  | 11  | 10  | 11  | 0   | 0   | 0   | 0   | 12 bits = 1 byte + 4 bits = 2 bytes |
 
-This shows that essentially, if we are able to encode our string using Huffman encoding! We will be able to reduce its size.
+This shows that essentially, if we are able to encode our string using Huffman coding, we will be able to reduce its size!
 
-But there are some challenges with decoding! While decoding, we will need access to this tree "somehow". The way we will do that is by packing the tree with the data while compression!
+But there are some challenges with decoding! While decoding, we will need access to this tree "somehow". The way we will do that is by packing the tree with the data while compressing!
 
-It works by creating a /prefix tree for the input data! Then compressed by encoding
+It works by creating a /prefix tree for the input data! Then compressing by encoding
 
 1. input length
-2. huffman-coding as a table (its length, each byte, size of bits, actual bits)
+2. Huffman coding as a table (its length, each byte, size of bits, actual bits)
 3. encoded original data
 
-The decompressor works by decoding the input length, extracting the huffman-coding table from the compressed blob and re-constructing the input!
+The decompressor works by decoding the input length, extracting the Huffman coding table from the compressed blob and re-constructing the input!
 
 ## Tree Serialization
 
-To also pack the tree with the compressed data, we need to serialize it. Tree serialization and de-serialization means represnting the tree in "bytes", putting it in the compressed binary and re-constructing the tree when decompressing.
+To also pack the tree with the compressed data, we need to serialize it. Tree serialization and de-serialization means representing the tree in "bytes", putting it in the compressed binary and re-constructing the tree when decompressing.
 
-To serialise a Huffman-coding tree, we can run a pre-order tree traversal on it, and add a special byte (ASCII `31` aka unit separator) for internal non-Leaf nodes.
+To serialize a Huffman coding tree, we can run a pre-order tree traversal on it, and add a special byte (ASCII `31` aka unit separator) for internal non-leaf nodes.
 
 Here is how it looks like for our example tree:
 
@@ -126,7 +126,7 @@ We also need to "know" how many bytes represent the traversal and we need to sto
 
 ## Trie Search
 
-When decoding "unknown" number of bytes, we will use [Trie search algorithm](https://en.wikipedia.org/wiki/Trie) to decode the bits fast. Luckily, Hoffman-coding tree is also a prefix tree i.e. Trie search algorithm can be applied on it without any code changes.
+When decoding "unknown" number of bytes, we will use [Trie search algorithm](https://en.wikipedia.org/wiki/Trie) to decode the bits fast. Luckily, Huffman coding tree is also a prefix tree i.e. Trie search algorithm can be applied on it without any code changes.
 
 # Compression and Decompression
 
@@ -192,7 +192,7 @@ At this point, we can already see that for this small example string, we are exp
 
 Moving on, let's start packing the data: "ababcccc". This is where things get interesting and instead of packing data at byte level, we pack them as closely as possible with bits.
 
-After packing the first "a" (i.e. `10` bits, remaining string: "babcccc"). Note that we are using the little-ending encoding.
+After packing the first "a" (i.e. `10` bits, remaining string: "babcccc"). Note that we are using the [little-endian](https://en.wikipedia.org/wiki/Endianness) encoding.
 
 Compressed binary
 
@@ -213,7 +213,7 @@ Compressed binary
 00000001 01 # data "a" packed
 ```
 
-After packing the next "b" (i.e. `11` bits, remaining string: "abcccc"). Note that we are using the little-ending encoding.
+After packing the next "b" (i.e. `11` bits, remaining string: "abcccc"). Note that we are using the little-endian encoding.
 
 ```
 00001000 08 # Input data length, 4 bytes
@@ -299,7 +299,7 @@ remaining compressed binary:
 00000000 00
 ```
 
-Construct the huffman-tree from the traversal.
+Construct the Huffman tree from the traversal.
 
 Loop up to data length i.e. 8! Extract 8 bytes one-by-one. This one is a bit tricky, since the encoding length is variable, we need to use the following algorithm
 
@@ -347,11 +347,11 @@ At this point, we have successfully decompressed our input string. 4-bits remain
 
 I hope this gave you a glimpse into how data compressors are built. Our data compressor is still pretty slow and just a toy compared to the production ready data compressors.
 
-Most real world compressors use [LZ family of algorithms](https://en.wikipedia.org/wiki/LZ77_and_LZ78) in conjuction with Hoffman-coding.
+Most real world compressors use [LZ family of algorithms](https://en.wikipedia.org/wiki/LZ77_and_LZ78) in conjuction with Huffman coding.
 
 # Fun
 
-## Here is an example huffman-coding tree for this input
+## Here is an example Huffman coding tree for this input
 
 ```
 a
