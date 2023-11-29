@@ -28,15 +28,15 @@ Or run
 
 - [Build Your Own Data Compressor](#build-your-own-data-compressor)
 - [Theory](#theory)
-  * [Huffman Coding](#huffman-coding)
-  * [Tree Serialization](#tree-serialization)
-  * [Trie Search](#trie-search)
+  - [Huffman Coding](#huffman-coding)
+  - [Tree Serialization](#tree-serialization)
+  - [Trie Search](#trie-search)
 - [Compression and Decompression](#compression-and-decompression)
-  * [Compression](#compression)
-  * [Decompression](#decompression)
+  - [Compression](#compression)
+  - [Decompression](#decompression)
 - [Conclusion](#conclusion)
 - [Fun](#fun)
-  * [Here is an example huffman-coding tree for this input](#here-is-an-example-huffman-coding-tree-for-this-input)
+  - [Here is an example huffman-coding tree for this input](#here-is-an-example-huffman-coding-tree-for-this-input)
 
 <!-- tocstop -->
 
@@ -110,6 +110,8 @@ It works by creating a /prefix tree for the input data! Then compressing by enco
 
 The decompressor works by decoding the input length, extracting the Huffman coding table from the compressed blob and re-constructing the input!
 
+[Related code](./tree-utils/prefix-tree.ts)
+
 ## Tree Serialization
 
 To also pack the tree with the compressed data, we need to serialize it. Tree serialization and de-serialization means representing the tree in "bytes", putting it in the compressed binary and re-constructing the tree when decompressing.
@@ -124,9 +126,13 @@ Pre-order tree traversal: [31, c, 31, a, b]
 
 We also need to "know" how many bytes represent the traversal and we need to store that information, that would take one byte.
 
+[Related code](./tree-utils/pack-tree.ts)
+
 ## Trie Search
 
 When decoding "unknown" number of bytes, we will use [Trie search algorithm](https://en.wikipedia.org/wiki/Trie) to decode the bits fast. Luckily, Huffman coding tree is also a prefix tree i.e. Trie search algorithm can be applied on it without any code changes.
+
+[Related code](./tree-utils/trie.ts)
 
 # Compression and Decompression
 
@@ -253,6 +259,8 @@ Similarly, packing the remaining string "abcccc" yields the following compressed
 ```
 
 To be able to pack bits and bytes like this, we will need an abstraction that allows us to easily read/write bits and bytes. This can be seen in [binary-utils](./binary-utils/) folder.
+
+[Related code](./binary-utils/)
 
 ## Decompression
 
